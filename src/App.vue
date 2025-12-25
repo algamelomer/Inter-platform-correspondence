@@ -1,171 +1,253 @@
 <template>
-  <div class="min-h-screen bg-slate-50 font-sans antialiased text-slate-900">
-    <nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center sticky top-0 z-10">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">H</div>
-        <h1 class="text-xl font-bold tracking-tight">Inter-Platform Correspondence</h1>
-      </div>
-      <div class="flex gap-3">
-        <button @click="showLogs = !showLogs" class="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-md transition">
-          View Raw Logs
-        </button>
-        <button @click="openModal" class="px-4 py-2 text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 rounded-md shadow-sm transition">
-          New Dispatch
-        </button>
-      </div>
-    </nav>
+  <div class="flex min-h-screen bg-slate-50 font-sans text-slate-900">
+    <!-- Sidebar -->
+    <Sidebar />
 
-    <main class="max-w-7xl mx-auto p-6 space-y-8">
-      
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div v-for="sys in systems" :key="sys.name" 
-             class="bg-white p-5 rounded-xl border border-slate-200 shadow-xs flex items-center gap-4">
-          <div :class="[sys.active ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600', 'p-3 rounded-full']">
-            <component :is="sys.icon" class="w-5 h-5" />
-          </div>
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col ml-64 transition-all duration-300">
+
+      <!-- Top Header -->
+      <TopHeader />
+
+      <!-- Page Content -->
+      <main class="flex-1 p-8 overflow-y-auto">
+
+        <div class="flex justify-between items-end mb-8">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">{{ sys.name }}</p>
-            <p class="text-sm font-bold">{{ sys.active ? 'Sync Active' : 'Offline' }}</p>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">System Overview</h1>
+            <p class="text-slate-500 mt-1">Monitor real-time sync status and inter-platform messaging queues.</p>
           </div>
-        </div>
-      </section>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <section class="lg:col-span-2 space-y-4">
-          <h2 class="text-lg font-bold flex items-center gap-2">
-            Recent Interactions
-            <span class="text-xs font-normal bg-slate-200 px-2 py-0.5 rounded-full text-slate-600">{{ filteredMessages.length }}</span>
-          </h2>
-          
-          <div v-for="msg in filteredMessages" :key="msg.id" 
-               class="bg-white p-5 rounded-xl border border-slate-200 hover:border-indigo-300 transition-colors shadow-sm group">
-            <div class="flex justify-between items-start mb-3">
-              <div class="flex items-center gap-2">
-                <span :class="getCategoryClass(msg.category)" class="text-[10px] font-bold px-2 py-0.5 rounded uppercase">
-                  {{ msg.category }}
-                </span>
-                <span class="text-slate-400 text-xs tracking-tighter">{{ msg.timestamp }}</span>
-              </div>
-              <span class="text-xs font-medium text-slate-500 group-hover:text-indigo-600 cursor-pointer italic">Details →</span>
-            </div>
-            
-            <h3 class="font-semibold text-slate-800">{{ msg.title }}</h3>
-            <p class="text-sm text-slate-600 mt-1 leading-relaxed">{{ msg.body }}</p>
-            
-            <div class="mt-4 pt-4 border-t border-slate-50 flex items-center justify-between">
-              <div class="flex -space-x-2">
-                <div class="w-6 h-6 rounded-full bg-slate-200 border-2 border-white text-[8px] flex items-center justify-center font-bold">
-                  {{ msg.from }}
-                </div>
-                <div class="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white text-[8px] flex items-center justify-center font-bold text-indigo-600">
-                  {{ msg.to }}
-                </div>
-              </div>
-              <span v-if="msg.financialImpact" class="text-xs font-bold text-amber-600 flex items-center gap-1">
-                <span class="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></span>
-                Payroll Impact: ${{ msg.amount }}
-              </span>
-            </div>
-          </div>
-        </section>
-
-        <aside class="space-y-6">
-          <div class="bg-indigo-900 rounded-xl p-6 text-white shadow-xl shadow-indigo-200">
-            <h3 class="font-bold mb-4">Inter-platform Logic</h3>
-            <div class="space-y-4 text-sm opacity-90">
-              <div class="flex justify-between border-b border-indigo-800 pb-2">
-                <span>Avg. Sync Time</span>
-                <span class="font-mono">1.2s</span>
-              </div>
-              <div class="flex justify-between border-b border-indigo-800 pb-2">
-                <span>Pending Finance Approvals</span>
-                <span class="font-mono">14</span>
-              </div>
-              <div class="flex justify-between">
-                <span>Email Queue</span>
-                <span class="font-mono">Healthy</span>
-              </div>
-            </div>
-            <button class="w-full mt-6 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg text-xs font-bold transition">
-              Run System Diagnostic
+          <div class="flex gap-3">
+            <button
+              class="px-4 py-2 bg-white border border-slate-200 text-slate-600 font-medium rounded-lg text-sm shadow-sm hover:bg-slate-50 transition">
+              Download Report
+            </button>
+            <button @click="showModal = true"
+              class="px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg text-sm shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition flex items-center gap-2">
+              + New Dispatch
             </button>
           </div>
-        </aside>
+        </div>
+
+        <!-- Metric Grid -->
+        <StatGrid />
+
+        <!-- Main Feed Layout -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+
+          <!-- Feed (Takes up 2 cols) -->
+          <div class="xl:col-span-2">
+            <ActivityFeed :messages="messages" />
+          </div>
+
+          <!-- Right Column: Analytics / Mini-widgets -->
+          <div class="space-y-6">
+            <!-- Chart Placeholder -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <h3 class="font-bold text-slate-800 mb-4">Message Volume</h3>
+              <div class="h-40 flex items-end justify-between gap-2 px-2">
+                <!-- Fake CSS Chart -->
+                <div v-for="h in [40, 65, 30, 85, 50, 95, 60]" :key="h"
+                  class="w-full bg-indigo-100 rounded-t hover:bg-indigo-500 transition-colors relative group"
+                  :style="{ height: h + '%' }">
+                  <div
+                    class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    {{ h }}
+                  </div>
+                </div>
+              </div>
+              <div class="flex justify-between mt-3 text-xs text-slate-400 font-mono uppercase">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+              </div>
+            </div>
+
+            <!-- Health Check -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+              <h3 class="font-bold text-slate-800 mb-4">Node Health</h3>
+              <div class="space-y-4">
+                <div v-for="node in ['HRMS-01', 'LMS-Core', 'WMS-East']" :key="node"
+                  class="flex items-center justify-between text-sm">
+                  <span class="text-slate-600 font-medium">{{ node }}</span>
+                  <div class="flex items-center gap-2">
+                    <span class="w-16 h-1 bg-slate-100 rounded-full overflow-hidden">
+                      <div class="h-full bg-emerald-500 w-[95%]"></div>
+                    </span>
+                    <span class="text-emerald-600 font-bold text-xs">OK</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+    </div>
+
+    <!-- Dispatch Modal -->
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" @click="showModal = false">
       </div>
-    </main>
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative z-10 overflow-hidden transform transition-all scale-100">
+
+        <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h3 class="font-bold text-slate-800 text-lg">Broadcast Dispatch</h3>
+          <button @click="showModal = false" class="text-slate-400 hover:text-rose-500 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-8 space-y-6">
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Protocol Type</label>
+            <div class="grid grid-cols-3 gap-3">
+              <button
+                class="border border-indigo-600 bg-indigo-50 text-indigo-700 font-bold text-xs py-2 rounded-lg">Standard</button>
+              <button
+                class="border border-slate-200 text-slate-500 font-bold text-xs py-2 rounded-lg hover:border-slate-300">Urgent</button>
+              <button
+                class="border border-slate-200 text-slate-500 font-bold text-xs py-2 rounded-lg hover:border-slate-300">Batch</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Origin Sys</label>
+              <select
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <option>Warehouse (WMS)</option>
+                <option>HRMS Core</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Target Sys</label>
+              <select
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                <option>Finance API</option>
+                <option>LMS Engine</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div>
+            <label class="block text-xs font-bold uppercase text-slate-500 mb-2">Content Type</label>
+            <div class="flex border-b border-slate-200 mb-4">
+              <button @click="attachmentType = 'text'"
+                :class="[attachmentType === 'text' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-700', 'pb-2 px-4 text-sm font-bold border-b-2 transition-colors']">
+                Text Message
+              </button>
+              <button @click="attachmentType = 'pdf'"
+                :class="[attachmentType === 'pdf' ? 'text-indigo-600 border-indigo-600' : 'text-slate-500 border-transparent hover:text-slate-700', 'pb-2 px-4 text-sm font-bold border-b-2 transition-colors']">
+                PDF Document
+              </button>
+            </div>
+
+            <div v-if="attachmentType === 'text'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <textarea rows="4"
+                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition placeholder-slate-400"
+                placeholder="Type your official correspondence here..."></textarea>
+            </div>
+
+            <div v-if="attachmentType === 'pdf'" class="animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div
+                class="border-2 border-dashed border-slate-300 rounded-xl p-8 flex flex-col items-center justify-center text-center hover:border-indigo-400 hover:bg-slate-50 transition-colors cursor-pointer group">
+                <div
+                  class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                </div>
+                <p class="text-sm font-bold text-slate-700">Click to upload PDF</p>
+                <p class="text-xs text-slate-400 mt-1">or drag and drop file here</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-2">
+            <button @click="showModal = false"
+              class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]">
+              Execute Transaction
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { 
-  Users, 
-  GraduationCap, 
-  Clock, 
-  CreditCard 
-} from 'lucide-vue-next';
+import { ref } from 'vue';
+import Sidebar from './components/layout/Sidebar.vue';
+import TopHeader from './components/layout/TopHeader.vue';
+import StatGrid from './components/dashboard/StatGrid.vue';
+import ActivityFeed from './components/dashboard/ActivityFeed.vue';
 
-// Platform statuses
-const systems = ref([
-  { name: 'HRMS Core', icon: Users, active: true },
-  { name: 'LMS Engine', icon: GraduationCap, active: true },
-  { name: 'AMS Tracker', icon: Clock, active: true },
-  { name: 'Finance API', icon: CreditCard, active: false }
-]);
+const showModal = ref(false);
+const attachmentType = ref('text');
 
-// Correspondence Mock Data
 const messages = ref([
   {
     id: 1,
-    from: 'LMS',
-    to: 'PAY',
-    category: 'Payroll',
-    title: 'Certification Bonus Triggered',
-    body: 'Employee EMP_902 completed "Advanced Node.js". Auto-triggering one-time bonus of $500.',
-    timestamp: '2 mins ago',
-    financialImpact: true,
-    amount: '500.00'
+    from: 'WMS',
+    to: 'HRMS',
+    category: 'Inventory',
+    title: 'Low Stock Alert: IT Equipment',
+    body: 'Monitor inventory below threshold (5 units). Requisition auto-drafted for review.',
+    timestamp: 'Just now',
+    financialImpact: false,
+    amount: '0',
   },
   {
     id: 2,
-    from: 'AMS',
-    to: 'HR',
-    category: 'Attendance',
-    title: 'Attendance Anomaly Detected',
-    body: 'System flagged 3 consecutive late arrivals for Dept: Engineering. Notifications sent to manager.',
-    timestamp: '45 mins ago',
-    financialImpact: false
+    from: 'LMS',
+    to: 'FIN',
+    category: 'Payroll',
+    title: 'Certification Bonus Triggered',
+    body: 'Employee EMP_902 completed "Advanced Node.js". Auto-triggering one-time bonus.',
+    timestamp: '12 mins ago',
+    financialImpact: true,
+    amount: '500.00',
   },
   {
     id: 3,
-    from: 'HR',
-    to: 'LMS',
-    category: 'Training',
-    title: 'New Onboarding Sequence',
-    body: 'User EMP_1024 added to HRMS. Syncing enrollment data for mandatory Safety Training.',
-    timestamp: '2 hours ago',
-    financialImpact: false
+    from: 'AMS',
+    to: 'HRMS',
+    category: 'Attendance',
+    title: 'Attendance Anomaly Detected',
+    body: 'System flagged 3 consecutive late arrivals for Dept: Engineering.',
+    timestamp: '45 mins ago',
+    financialImpact: false,
+    amount: '0',
+  },
+  {
+    id: 4,
+    from: 'HRMS',
+    to: 'WMS',
+    category: 'Onboarding',
+    title: 'New Hire Equipment Request',
+    body: 'Provisioning kit for Senior Dev (Laptop, Monitor, Peripherals).',
+    timestamp: '1 hour ago',
+    financialImpact: false,
+    amount: '0',
+  },
+  {
+    id: 5,
+    from: 'FIN',
+    to: 'HRMS',
+    category: 'Payroll',
+    title: 'Salary Disbursement Complete',
+    body: 'Batch #9902 processed successfully. 142 employees paid.',
+    timestamp: 'Yesterday',
+    financialImpact: true,
+    amount: '142k',
   }
 ]);
-
-const filteredMessages = computed(() => messages.value);
-
-const getCategoryClass = (cat) => {
-  switch (cat.toLowerCase()) {
-    case 'payroll': return 'bg-amber-100 text-amber-700';
-    case 'attendance': return 'bg-emerald-100 text-emerald-700';
-    case 'training': return 'bg-indigo-100 text-indigo-700';
-    default: return 'bg-slate-100 text-slate-700';
-  }
-};
-
-const openModal = () => alert("Open New Dispatch UI...");
 </script>
-
-<style>
-/* Custom transitions for v4 */
-.transition-all {
-  transition-duration: 300ms;
-}
-</style>

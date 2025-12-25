@@ -7,3 +7,9 @@
   --color-lms-purple: #9333ea;
   --color-finance-gold: #d97706;
 }
+
+@layer base {
+  body {
+    @apply bg-slate-50;
+  }
+}
