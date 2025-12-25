@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+/* If you want to customize your theme (like brand colors for HRMS/LMS), 
+   you do it right here in the CSS now! */
+@theme {
+  --color-hrms-blue: #2563eb;
+  --color-lms-purple: #9333ea;
+  --color-finance-gold: #d97706;
+}
